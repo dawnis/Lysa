@@ -37,11 +37,11 @@ class GymnasiumCCEnv:
     def map_action (self, nn_output):
         """Maps output of NN to a discrete number for Gymanisum"""
 
-        if nn_output < -10:
+        if nn_output < -0.5:
             return self.action_dict["left"]
-        elif nn_output > 10:
+        elif nn_output > 0.5:
             return self.action_dict["right"]
-        elif (np.abs(nn_output) <= 10) & (np.abs(nn_output) > 3 ):
+        elif (np.abs(nn_output) <= 0.5) & (np.abs(nn_output) > 0.1):
             return self.action_dict["up"]
         else:
             return self.action_dict["noop"]
@@ -89,17 +89,17 @@ class CartPoleEnvironment(GymnasiumCCEnv):
 
         for _ in range(self.evaluation_steps):
             step += 1
-            mapped_observation = map_observation_8d(observation)
+            mapped_observation = map_observation_8d(observation, self.obs_map)
 
 
             population.agent_fwd(agent_idx, mapped_observation)
             action_raw = population.agent_out(agent_idx)
             action_discrete = self.map_action(action_raw[0])
 
-            if step % 10 == 0:
-                print(f"Observation: {observation}")
-                print(f"Mapped Observation: {mapped_observation}")
-                print(f"Raw output {action_raw}, chosen action: {action_discrete}")
+            # if step % 10 == 0:
+            #     print(f"Observation: {observation}")
+            #     print(f"Mapped Observation: {mapped_observation}")
+            #     print(f"Raw output {action_raw}, chosen action: {action_discrete}")
 
             observation, reward, terminated, truncated, info = self.env.step(action_discrete)
 
@@ -149,7 +149,7 @@ class MountainCarEnvironment(GymnasiumCCEnv):
         fitness = 0
 
         for _ in range(self.evaluation_steps):
-            mapped_observation = map_observation_8d(observation)
+            mapped_observation = map_observation_8d(observation, self.obs_map)
             population.agent_fwd(agent_idx, mapped_observation)
             action_raw = population.agent_out(agent_idx)
             action_discrete = self.map_action(action_raw[0])
