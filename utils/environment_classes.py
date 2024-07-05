@@ -6,6 +6,9 @@ import gymnasium as gym
 import numpy as np
 import random
 
+global obs_vector
+obs_vector = ["xpos", "ypos", "xvel", "yvel", "l1", "angle", "angular_vel", "l2"]
+
 def visualize_gen(filename):
     """Visualize the graph for a particular generation"""
     # Path to your .dot file
@@ -14,6 +17,11 @@ def visualize_gen(filename):
     display(source)
     output_path = source.render(filename=file_path, format='png')
     return file_path
+
+def map_observation_8d(observation, obs_map):
+    """Creates 8-dimensional vector from observation map to feed into NN"""
+    # defaults to 0 if the key is not present in a particular envioronment's observation space
+    return [observation[obs_map[x]] if x in obs_map.keys() else 0 for x in obs_vector]
 
 class GymnasiumCCEnv:
 
@@ -25,13 +33,6 @@ class GymnasiumCCEnv:
         self.evaluation_steps = 999
         self.observation_steps = 999
         self.configuration = configuration
-        self.obs_vector = ["xpos", "ypos", "xvel", "yvel", "l1", "angl", "angl_vel", "l2"]
-
-    def map_obs8(self, observation):
-        """Creates 8-dimensional vector from observation map to feed into NN"""
-        # defaults to 0 if the key is not present in a particular envioronment's observation space
-        return [observation[self.obs_map[x]] if x in self.obs_map.keys() else 0 for x in self.obs_vector]
-
 
     def map_action (self, nn_output):
         """Maps output of NN to a discrete number for Gymanisum"""
@@ -68,8 +69,8 @@ class CartPoleEnvironment(GymnasiumCCEnv):
 
     def __init__(self, configuration):
         obs_space_dictionary = {
-            "x1": 0,
-            "vel": 1,
+            "xpos": 0,
+            "xvel": 1,
             "angle": 2
         }
 
@@ -88,10 +89,18 @@ class CartPoleEnvironment(GymnasiumCCEnv):
 
         for _ in range(self.evaluation_steps):
             step += 1
-            mapped_observation = self.map_obs8(observation)
+            mapped_observation = map_observation_8d(observation)
+
+
             population.agent_fwd(agent_idx, mapped_observation)
             action_raw = population.agent_out(agent_idx)
             action_discrete = self.map_action(action_raw[0])
+
+            if step % 10 == 0:
+                print(f"Observation: {observation}")
+                print(f"Mapped Observation: {mapped_observation}")
+                print(f"Raw output {action_raw}, chosen action: {action_discrete}")
+
             observation, reward, terminated, truncated, info = self.env.step(action_discrete)
 
             reward_delta = reward #sometimes there are NaNs, which crash the program
@@ -124,8 +133,8 @@ class MountainCarEnvironment(GymnasiumCCEnv):
 
     def __init__(self, configuration):
         obs_space_dictionary = {
-            "x1": 0,
-            "vel": 1,
+            "xpos": 0,
+            "xvel": 1,
         }
         action_map_dictionary = {
             "left": 0,
@@ -140,7 +149,7 @@ class MountainCarEnvironment(GymnasiumCCEnv):
         fitness = 0
 
         for _ in range(self.evaluation_steps):
-            mapped_observation = self.map_obs8(observation)
+            mapped_observation = map_observation_8d(observation)
             population.agent_fwd(agent_idx, mapped_observation)
             action_raw = population.agent_out(agent_idx)
             action_discrete = self.map_action(action_raw[0])
