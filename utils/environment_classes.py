@@ -143,19 +143,16 @@ class PendulumEnvironment(GymnasiumCCEnv):
         obs_space_dictionary = {
             "xpos": 0,
             "ypos": 1,
-            "xvel": 2,
-            "yvel": 3,
-            "angle": 4,
-            "angular_vel": 5,
+            "angular_vel": 2,
         }
 
         action_map_dictionary = {}
         pendulum_action = defaultdict(lambda: 0, action_map_dictionary)
 
-        super().__init__("Pendulum-v1", configuration, obs_space_dictionary, pendulum_action, agent_fitness_default=16.3*200)
+        super().__init__("Pendulum-v1", configuration, obs_space_dictionary, pendulum_action, agent_fitness_default=1000)
 
     def map_action(self, nn_output):
-        return 2*nn_output
+        return [2*nn_output]
 
 class CartPoleEnvironment(GymnasiumCCEnv):
 
