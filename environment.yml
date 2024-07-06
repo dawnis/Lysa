@@ -5,7 +5,7 @@ channels:
 dependencies:
   - python=3.12
   - scipy
-  - numpy
+  - numpy=1.26.4
   - pip
   - pip:
     - graphviz
