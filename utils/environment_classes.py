@@ -103,10 +103,11 @@ class GymnasiumCCEnv:
         observation, info = self.env.reset()
 
         for _ in range(self.evaluation_steps):
-            population.agent_fwd(agent_idx, list(observation))
+            mapped_observation = map_observation_8d(observation, self.obs_map)
+            population.agent_fwd(agent_idx, mapped_observation)
             action_raw = population.agent_out(agent_idx)
-            action = self.map_action(action_raw[0])
-            observation, reward, terminated, truncated, info = self.env.step(action)
+            action_discrete = self.map_action(action_raw[0])
+            observation, reward, terminated, truncated, info = self.env.step(action_discrete)
 
             if terminated or truncated:
                 observation, info = self.env.reset()

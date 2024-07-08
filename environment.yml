@@ -6,6 +6,7 @@ dependencies:
   - python=3.12
   - scipy
   - numpy=1.26.4
+  - pygame
   - pip
   - pip:
     - graphviz
