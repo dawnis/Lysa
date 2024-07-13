@@ -23,6 +23,20 @@ def map_observation_8d(observation, obs_map):
     # defaults to 0 if the key is not present in a particular envioronment's observation space
     return [observation[obs_map[x]] if x in obs_map.keys() else 0 for x in obs_vector]
 
+def get_gym_env(environment_name, configuration):
+    if environment_name == 'CartPole':
+        env = CartPoleEnvironment(configuration)
+    elif environment_name == 'MountainCar':
+        env = MountainCarEnvironment(configuration)
+    elif environment_name == 'Acrobot':
+        env = AcrobotEnvironment(configuration)
+    elif environment_name == 'Pendulum':
+        env = PendulumEnvironment(configuration)
+    else:
+        env = None
+    return env
+
+
 class GymnasiumCCEnv:
 
     def __init__(self, environment_name, configuration, obs_space_dict, action_map_dict, agent_fitness_default=0):
@@ -97,20 +111,19 @@ class GymnasiumCCEnv:
         else:
             return self.action_dict["noop"]
 
-    def observe(self, population, idx):
+    def observe(self, agent):
         self.env = gym.make(self.env_name, render_mode="human")
-        agent_idx = idx
         observation, info = self.env.reset()
 
         for _ in range(self.evaluation_steps):
             mapped_observation = map_observation_8d(observation, self.obs_map)
-            population.agent_fwd(agent_idx, mapped_observation)
-            action_raw = population.agent_out(agent_idx)
+            agent.fwd(mapped_observation)
+            action_raw = agent.output()
             action_discrete = self.map_action(action_raw[0])
             observation, reward, terminated, truncated, info = self.env.step(action_discrete)
 
             if terminated or truncated:
-                observation, info = self.env.reset()
+                break
 
         self.env.close()
 

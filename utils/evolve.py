@@ -1,5 +1,5 @@
 import evo_rl
-from .environment_classes import *
+from utils.environment_classes import *
 
 class evolution_chamber:
 
@@ -25,17 +25,7 @@ class evolution_chamber:
         self.max_generations = 200
         self.min_generations = 10 #so we can reach the visualization checkpoint
         self.stopping_fitness = 200
-
-        if environment == 'CartPole':
-            self.env = CartPoleEnvironment(self.configuration)
-        elif environment == 'MountainCar':
-            self.env = MountainCarEnvironment(self.configuration)
-        elif environment == 'Acrobot':
-            self.env = AcrobotEnvironment(self.configuration)
-        elif environment == 'Pendulum':
-            self.env = PendulumEnvironment(self.configuration)
-        else:
-            self.env = None
+        self.env = get_gym_env(environment, self.configuration)
 
 
     def run_evolve(self):
