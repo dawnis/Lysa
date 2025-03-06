@@ -3,9 +3,10 @@ from utils.environment_classes import *
 
 class evolution_chamber:
 
-    def __init__(self, environment, checkpoint=None):
+    def __init__(self, environment, scratch=False):
 
         self.configuration = {
+            "evolve_from_scratch": scratch,
             "population_size": 2000,
             "survival_rate": 0.05,
             "mutation_rate": 0.4,
@@ -14,13 +15,11 @@ class evolution_chamber:
             "output_size": 1,
             "topology_mutation_rate": 0.4,
             "project_name": "Lysa",
-            "project_directory": "/Users/dchow/git/Lysa/agents"
+            "project_directory": "/Users/dchow/git/Lysa/agents",
+            "api": "http://localhost:8080/genome"
         }
 
-        if checkpoint is not None:
-            self.population = evo_rl.PopulationApi(self.configuration, checkpoint)
-        else:
-            self.population = evo_rl.PopulationApi(self.configuration)
+        self.population = evo_rl.PopulationApi(self.configuration)
 
         self.max_generations = 200
         self.min_generations = 10 #so we can reach the visualization checkpoint
